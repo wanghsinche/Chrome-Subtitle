@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveButton.style.display = "inline-block";
     }
   });
+  
   review.onclick = () => {
     chrome.tabs.create({url: "https://chrome.google.com/webstore/detail/chrome-audio-capture/kfokdmfpdnokpmpbjhjbcabgligoelgp/reviews"});
   }

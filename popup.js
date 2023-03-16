@@ -40,7 +40,7 @@ const displayStatus = function() { //function to handle the display of time and 
               }, 1000);
             }
           });
-          finishButton.style.display = "block";
+          // finishButton.style.display = "block";
           cancelButton.style.display = "block";
         } else {
           startButton.style.display = "block";
@@ -78,7 +78,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
     if(request.captureStarted && request.captureStarted === tabs[0].id) {
       chrome.storage.sync.get({
         maxTime: 1200000,
-        limitRemoved: false
+        limitRemoved: true
       }, (options) => {
         if(options.maxTime > 1200000) {
           chrome.storage.sync.set({
@@ -102,12 +102,12 @@ chrome.runtime.onMessage.addListener((request, sender) => {
           }, 1000);
         }
       });
-      finishButton.style.display = "block";
+      // finishButton.style.display = "block";
       cancelButton.style.display = "block";
       startButton.style.display = "none";
     } else if(request.captureStopped && request.captureStopped === tabs[0].id) {
       status.innerHTML = "";
-      finishButton.style.display = "none";
+      // finishButton.style.display = "none";
       cancelButton.style.display = "none";
       startButton.style.display = "block";
       timeRem.innerHTML = "";

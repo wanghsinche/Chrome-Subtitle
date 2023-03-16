@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
 
-  "name": "Chrome Audio Capture",
+  "name": "Chrome Subtitle",
   "description": "This extension captures the audio on the current tab and saves the output file on your computer when the capture is complete",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "icons": {
     "128":"icon.png"
     },

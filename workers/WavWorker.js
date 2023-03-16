@@ -4,8 +4,10 @@ let sampleRate = 44100,
     numChannels = 2,
     options = undefined,
     maxBuffers = undefined,
+    bufferSize = undefined,
     encoder = undefined,
     recBuffers = undefined,
+    chunkSec = 10,
     bufferCount = 0;
 
 function error(message) {
@@ -25,7 +27,8 @@ function setOptions(opt) {
     options = opt;
 }
 
-function start(bufferSize) {
+function start(BFSZ) {
+  bufferSize = BFSZ;
   maxBuffers = Math.ceil(options.timeLimit * sampleRate / bufferSize);
   if (options.encodeAfterRecord)
     recBuffers = [];
@@ -47,11 +50,29 @@ function postProgress(progress) {
   self.postMessage({ command: "progress", progress: progress });
 };
 
-function finish() {
+function finish(saveChunk) {
   if (recBuffers) {
     postProgress(0);
     encoder = new WavAudioEncoder(sampleRate, numChannels);
     var timeout = Date.now() + options.progressInterval;
+    // save part of it
+    if (saveChunk) {
+      var chunkSize = Math.ceil(chunkSec * sampleRate / bufferSize); // 10 sec
+      var tempRecBuffers = recBuffers.slice(Math.max(recBuffers.length-chunkSize,0),recBuffers.length);
+      recBuffers = [...tempRecBuffers];
+      while(tempRecBuffers.length > 0) {
+        encoder.encode(tempRecBuffers.shift());
+      }
+      self.postMessage({
+        command: "chunkComplete",
+        blob: encoder.finish(options.wav.mimeType)
+      });    
+      encoder = undefined;
+      bufferCount = recBuffers.length;
+      postProgress(1);
+      return
+    }
+    // save totally
     while (recBuffers.length > 0) {
       encoder.encode(recBuffers.shift());
       var now = Date.now();
@@ -81,6 +102,7 @@ self.onmessage = function(event) {
     case "options": setOptions(data.options);   break;
     case "start":   start(data.bufferSize);     break;
     case "record":  record(data.buffer);        break;
+    case "saveChunk":finish(true);               break;
     case "finish":  finish();                   break;
     case "cancel":  cleanup();
   }
